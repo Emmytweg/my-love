@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For My Love</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@300;800&family=Playfair+Display:italic,wght@700&display=swap');
+
+        body {
+            background: radial-gradient(circle at center, #1a0508 0%, #050102 100%);
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            perspective: 1000px;
+        }
+
+        /* Falling Petals Effect */
+        .petal {
+            position: absolute;
+            background-color: #ff4d6d;
+            border-radius: 150% 0 150% 0;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .heart-container {
+            position: relative;
+            width: 450px;
+            height: 450px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: float 6s ease-in-out infinite;
+            z-index: 10;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
+            50% { transform: translateY(-30px) rotate(2deg) scale(1.02); }
+        }
+
+        .word {
+            position: absolute;
+            color: #ff758f;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            text-transform: uppercase;
+            white-space: nowrap;
+            text-shadow: 0 0 10px rgba(255, 117, 143, 0.3);
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            letter-spacing: 1px;
+        }
+
+        .word:hover {
+            color: #fff0f3;
+            text-shadow: 0 0 20px #ff4d6d, 0 0 40px #ff4d6d;
+            transform: scale(1.4) !important;
+            z-index: 100;
+        }
+
+        .center-text {
+            position: absolute;
+            font-family: 'Dancing Script', cursive;
+            font-size: 3.5rem;
+            color: #fff0f3;
+            text-align: center;
+            z-index: 50;
+            text-shadow: 0 0 25px rgba(255, 77, 109, 0.8), 0 0 5px #ffb3c1;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            line-height: 1;
+        }
+
+        .sub-text {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 1rem;
+            font-weight: 400;
+            letter-spacing: 2px;
+            margin-top: 10px;
+            color: #ffb3c1;
+        }
+
+        .bg-glow {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255, 77, 109, 0.15) 0%, rgba(26, 5, 8, 0) 70%);
+            border-radius: 50%;
+            z-index: -1;
+            filter: blur(40px);
+        }
+
+        #tap-msg {
+            position: absolute;
+            bottom: 40px;
+            color: #ffb3c1;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            opacity: 0.6;
+            animation: pulseFade 3s infinite;
+        }
+
+        @keyframes pulseFade {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+
+        /* Message Overlay */
+        #love-note {
+            position: fixed;
+            top: 20%;
+            pointer-events: none;
+            color: #ffb3c1;
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.8rem;
+            text-align: center;
+            width: 100%;
+            opacity: 0;
+            transition: opacity 1s;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow"></div>
+    <div id="love-note">You are my whole world...</div>
+    
+    <div class="heart-container" id="heart">
+        <div class="center-text">
+            My Love
+            <span class="sub-text">Happy Birthday</span>
+        </div>
+    </div>
+
+    <div id="tap-msg">Touch your heart</div>
+
+    <script>
+        const heartContainer = document.getElementById('heart');
+        const loveNote = document.getElementById('love-note');
+        
+        const words = [
+            "HAPPY", "BIRTHDAY", "ETERNAL", "DEVOTION", "MY", "SOULMATE", 
+            "FOREVER", "ALWAYS", "KISSES", "ADORE", "SWEETHEART", "MINE",
+            "BEAUTIFUL", "PRECIOUS", "BELOVED", "TREASURE", "ONLY YOU"
+        ];
+
+        const romanticNotes = [
+            "My heart beats only for you...",
+            "Every second with you is a gift.",
+            "I love you more than words can say.",
+            "You are the best thing that ever happened to me.",
+            "Forever isn't long enough with you.",
+            "Happy Birthday to my everything."
+        ];
+        
+        function getHeartPoint(t, scale) {
+            const x = 16 * Math.pow(Math.sin(t), 3);
+            const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+            return { x: x * scale, y: y * scale };
+        }
+
+        function createHeart() {
+            const totalWords = 45;
+            
+            for (let i = 0; i < totalWords; i++) {
+                const t = (i / totalWords) * Math.PI * 2;
+                // Outer ring
+                const pos = getHeartPoint(t, 13);
+                addWord(pos.x, pos.y, words[i % words.length], t);
+                
+                // Middle ring
+                if (i % 2 === 0) {
+                    const pos2 = getHeartPoint(t, 9);
+                    addWord(pos2.x, pos2.y, words[(i + 5) % words.length], t, 0.6);
+                }
+            }
+        }
+
+        function addWord(x, y, text, angle, opacity = 1) {
+            const el = document.createElement('div');
+            el.className = 'word';
+            el.innerText = text;
+            
+            const fontSize = Math.random() * (18 - 12) + 12;
+            
+            el.style.left = `calc(50% + ${x}px)`;
+            el.style.top = `calc(50% + ${y}px)`;
+            el.style.fontSize = `${fontSize * opacity}px`;
+            el.style.opacity = opacity;
+            
+            const rotation = angle * (180 / Math.PI);
+            el.style.transform = `translate(-50%, -50%) rotate(${rotation}deg)`;
+            
+            heartContainer.appendChild(el);
+        }
+
+        // Falling Petals Logic
+        function createPetal() {
+            const petal = document.createElement('div');
+            petal.className = 'petal';
+            const size = Math.random() * 10 + 5;
+            petal.style.width = `${size}px`;
+            petal.style.height = `${size}px`;
+            petal.style.left = Math.random() * 100 + 'vw';
+            petal.style.top = '-20px';
+            
+            document.body.appendChild(petal);
+
+            const duration = Math.random() * 5000 + 5000;
+            const drift = (Math.random() - 0.5) * 200;
+
+            petal.animate([
+                { transform: `translate(0, 0) rotate(0deg)`, opacity: 0.6 },
+                { transform: `translate(${drift}px, 100vh) rotate(720deg)`, opacity: 0 }
+            ], {
+                duration: duration,
+                easing: 'linear'
+            }).onfinish = () => petal.remove();
+        }
+
+        setInterval(createPetal, 400);
+
+        // Interaction
+        heartContainer.addEventListener('click', (e) => {
+            // Show romantic note
+            loveNote.innerText = romanticNotes[Math.floor(Math.random() * romanticNotes.length)];
+            loveNote.style.opacity = 1;
+            setTimeout(() => { loveNote.style.opacity = 0; }, 3000);
+
+            // Burst Effect
+            const burstCount = 15;
+            for (let i = 0; i < burstCount; i++) {
+                const spark = document.createElement('div');
+                spark.style.position = 'absolute';
+                spark.style.left = e.clientX + 'px';
+                spark.style.top = e.clientY + 'px';
+                spark.style.width = '8px';
+                spark.style.height = '8px';
+                spark.innerHTML = '❤';
+                spark.style.color = '#ff4d6d';
+                spark.style.fontSize = '12px';
+                spark.style.pointerEvents = 'none';
+                document.body.appendChild(spark);
+
+                const angle = Math.random() * Math.PI * 2;
+                const dist = 100 + Math.random() * 150;
+                const tx = Math.cos(angle) * dist;
+                const ty = Math.sin(angle) * dist;
+
+                spark.animate([
+                    { transform: 'translate(0, 0) scale(1) rotate(0deg)', opacity: 1 },
+                    { transform: `translate(${tx}px, ${ty}px) scale(0) rotate(360deg)`, opacity: 0 }
+                ], {
+                    duration: 1500,
+                    easing: 'ease-out'
+                }).onfinish = () => spark.remove();
+            }
+        });
+
+        createHeart();
+    </script>
+</body>
+</html>
